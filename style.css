@@ -375,6 +375,123 @@ header {
   color: white;
 }
 
+/* Экран выбора режима */
+.mode-screen {
+  padding: 50px 30px;
+  text-align: center;
+  display: none;
+  background: #012b20;
+  min-height: 500px;
+}
+
+.mode-screen.active {
+  display: block;
+}
+
+.mode-screen h1 {
+  color: #ffffff;
+  font-size: 2.5em;
+  margin-bottom: 40px;
+  font-weight: 300;
+}
+
+.mode-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 500px;
+  margin: 0 auto 30px auto;
+}
+
+.mode-btn {
+  background: #064e3b;
+  color: white;
+  border: 2px solid #047857;
+  padding: 25px 30px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.mode-btn:hover {
+  background: #047857;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(4, 120, 87, 0.4);
+}
+
+.mode-icon {
+  font-size: 2.5em;
+  display: block;
+}
+
+.mode-title {
+  font-size: 1.3em;
+  font-weight: bold;
+  display: block;
+}
+
+.mode-desc {
+  font-size: 0.95em;
+  opacity: 0.9;
+  display: block;
+}
+
+.speed-best-score {
+  margin: 20px 0;
+  color: #ffffff;
+  font-size: 1.1em;
+}
+
+.speed-best-score span {
+  font-weight: bold;
+  color: #10b981;
+}
+
+.back-btn {
+  background: transparent;
+  color: white;
+  border: 2px solid #047857;
+  padding: 12px 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1em;
+  margin-top: 20px;
+}
+
+.back-btn:hover {
+  background: #047857;
+  transform: translateY(-2px);
+}
+
+/* Таймер скоростного режима */
+.speed-timer {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #064e3b;
+  margin: 10px 0;
+  padding: 10px 20px;
+  background: #d1fae5;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.speed-timer.warning {
+  color: #dc2626;
+  background: #fee2e2;
+  animation: pulse 0.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
 /* Адаптивность */
 @media (max-width: 768px) {
   body {

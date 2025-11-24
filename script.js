@@ -5,6 +5,11 @@ class AgroTest {
       this.currentQuestionIndex = 0;
       this.userAnswers = {};
       this.stats = this.loadStats();
+      this.currentMode = null;
+      this.randomQuestionOrder = [];
+      this.speedModeTimer = null;
+      this.speedModeTimeLeft = 10;
+      this.speedModeScore = 0;
       this.initializeApp();
   }
 
@@ -19,12 +24,31 @@ class AgroTest {
       this.questions = questions;
       // Восстанавливаем прогресс
       this.currentQuestionIndex = this.stats.currentQuestion || 0;
+      this.currentMode = this.stats.currentMode || null;
+      this.randomQuestionOrder = this.stats.randomQuestionOrder || [];
   }
 
   setupEventListeners() {
       // Кнопка начала теста
       document.getElementById('startBtn').addEventListener('click', () => {
-          this.startTest();
+          this.showModeSelection();
+      });
+
+      // Кнопки выбора режима
+      document.getElementById('normalModeBtn').addEventListener('click', () => {
+          this.startMode('normal');
+      });
+
+      document.getElementById('randomModeBtn').addEventListener('click', () => {
+          this.startMode('random');
+      });
+
+      document.getElementById('speedModeBtn').addEventListener('click', () => {
+          this.startMode('speed');
+      });
+
+      document.getElementById('backToStartBtn').addEventListener('click', () => {
+          this.showStartScreen();
       });
 
       // Переключение языка
@@ -68,6 +92,7 @@ class AgroTest {
 
   showStartScreen() {
       document.getElementById('startScreen').classList.add('active');
+      document.getElementById('modeScreen').classList.remove('active');
       document.getElementById('questionScreen').classList.remove('active');
       document.getElementById('menuScreen').classList.remove('active');
   }
@@ -79,7 +104,8 @@ class AgroTest {
   }
 
   showCurrentQuestion() {
-      const question = this.questions[this.currentQuestionIndex];
+      const realIndex = this.getCurrentQuestionIndex();
+      const question = this.questions[realIndex];
       const questionData = this.currentLanguage === 'es' ? question.es : question;
 
       // Обновляем информацию о прогрессе
@@ -143,11 +169,21 @@ class AgroTest {
 
           // Сохраняем прогресс
           this.saveProgress();
+          
+          // Останавливаем таймер если это скоростной режим
+          if (this.currentMode === 'speed') {
+              this.stopSpeedTimer();
+          }
       }
 
       // Показываем правильный ответ
       this.showFeedback(questionId);
       this.showCurrentQuestion();
+      
+      // Автоматически переходим к следующему вопросу через 1.5 секунды
+      setTimeout(() => {
+          this.moveToNextQuestion();
+      }, 1500);
   }
 
   showFeedback(questionId) {
@@ -276,19 +312,26 @@ class AgroTest {
   }
 
   restartTest() {
+      this.stopSpeedTimer();
       this.userAnswers = {};
       this.currentQuestionIndex = 0;
+      this.currentMode = null;
+      this.randomQuestionOrder = [];
+      const bestSpeedScore = this.stats.bestSpeedScore || 0;
       this.stats = {
           totalAnswered: 0,
           correctAnswers: 0,
           bestStreak: 0,
           currentStreak: 0,
           answeredQuestions: [],
-          currentQuestion: 0
+          currentQuestion: 0,
+          currentMode: null,
+          randomQuestionOrder: [],
+          bestSpeedScore: bestSpeedScore
       };
       this.saveStats();
       this.hideMenu();
-      this.showCurrentQuestion();
+      this.showStartScreen();
       this.updateStatsPreview();
   }
 
@@ -300,7 +343,10 @@ class AgroTest {
           bestStreak: 0,
           currentStreak: 0,
           answeredQuestions: [],
-          currentQuestion: 0
+          currentQuestion: 0,
+          currentMode: null,
+          randomQuestionOrder: [],
+          bestSpeedScore: 0
       };
   }
 
@@ -310,7 +356,160 @@ class AgroTest {
 
   saveProgress() {
       this.stats.currentQuestion = this.currentQuestionIndex;
+      this.stats.currentMode = this.currentMode;
+      this.stats.randomQuestionOrder = this.randomQuestionOrder;
       this.saveStats();
+  }
+
+  showModeSelection() {
+      document.getElementById('startScreen').classList.remove('active');
+      document.getElementById('modeScreen').classList.add('active');
+      document.getElementById('questionScreen').classList.remove('active');
+      document.getElementById('menuScreen').classList.remove('active');
+      
+      const bestScore = this.stats.bestSpeedScore || 0;
+      document.getElementById('bestScore').textContent = bestScore;
+  }
+
+  startMode(mode) {
+      this.currentMode = mode;
+      
+      if (mode === 'random') {
+          if (this.stats.currentMode === 'random' && this.stats.randomQuestionOrder && this.stats.randomQuestionOrder.length > 0) {
+              this.randomQuestionOrder = this.stats.randomQuestionOrder;
+          } else {
+              this.shuffleQuestions();
+          }
+      } else if (mode === 'speed') {
+          this.speedModeScore = 0;
+          this.userAnswers = {};
+          this.shuffleQuestions();
+      }
+      
+      this.saveProgress();
+      document.getElementById('modeScreen').classList.remove('active');
+      document.getElementById('questionScreen').classList.add('active');
+      
+      if (mode === 'speed') {
+          document.getElementById('speedTimer').style.display = 'block';
+          this.startSpeedTimer();
+      } else {
+          document.getElementById('speedTimer').style.display = 'none';
+      }
+      
+      this.showCurrentQuestion();
+  }
+
+  shuffleQuestions() {
+      this.randomQuestionOrder = [];
+      for (let i = 0; i < this.questions.length; i++) {
+          this.randomQuestionOrder.push(i);
+      }
+      
+      for (let i = this.randomQuestionOrder.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [this.randomQuestionOrder[i], this.randomQuestionOrder[j]] = 
+          [this.randomQuestionOrder[j], this.randomQuestionOrder[i]];
+      }
+      
+      this.currentQuestionIndex = 0;
+  }
+
+  getCurrentQuestionIndex() {
+      if (this.currentMode === 'random' || this.currentMode === 'speed') {
+          return this.randomQuestionOrder[this.currentQuestionIndex];
+      }
+      return this.currentQuestionIndex;
+  }
+
+  startSpeedTimer() {
+      this.speedModeTimeLeft = 10;
+      this.updateTimerDisplay();
+      
+      if (this.speedModeTimer) {
+          clearInterval(this.speedModeTimer);
+      }
+      
+      this.speedModeTimer = setInterval(() => {
+          this.speedModeTimeLeft--;
+          this.updateTimerDisplay();
+          
+          if (this.speedModeTimeLeft <= 3) {
+              document.getElementById('speedTimer').classList.add('warning');
+          } else {
+              document.getElementById('speedTimer').classList.remove('warning');
+          }
+          
+          if (this.speedModeTimeLeft <= 0) {
+              clearInterval(this.speedModeTimer);
+              this.handleSpeedTimeout();
+          }
+      }, 1000);
+  }
+
+  updateTimerDisplay() {
+      document.getElementById('timerSeconds').textContent = this.speedModeTimeLeft;
+  }
+
+  handleSpeedTimeout() {
+      const realIndex = this.getCurrentQuestionIndex();
+      const question = this.questions[realIndex];
+      
+      if (this.userAnswers[question.id] === undefined) {
+          this.userAnswers[question.id] = -1;
+      }
+      
+      setTimeout(() => {
+          this.moveToNextQuestion();
+      }, 500);
+  }
+
+  stopSpeedTimer() {
+      if (this.speedModeTimer) {
+          clearInterval(this.speedModeTimer);
+          this.speedModeTimer = null;
+      }
+  }
+
+  moveToNextQuestion() {
+      if (this.currentMode === 'speed') {
+          if (this.currentQuestionIndex < this.questions.length - 1) {
+              this.currentQuestionIndex++;
+              this.showCurrentQuestion();
+              this.startSpeedTimer();
+          } else {
+              this.finishSpeedMode();
+          }
+      } else {
+          if (this.currentQuestionIndex < this.questions.length - 1) {
+              this.currentQuestionIndex++;
+              this.showCurrentQuestion();
+              this.saveProgress();
+          }
+      }
+  }
+
+  finishSpeedMode() {
+      this.stopSpeedTimer();
+      
+      const answeredCount = Object.keys(this.userAnswers).length;
+      const correctAnswers = this.questions.filter(q => 
+          this.userAnswers[q.id] === q.correct
+      ).length;
+      
+      if (!this.stats.bestSpeedScore || correctAnswers > this.stats.bestSpeedScore) {
+          this.stats.bestSpeedScore = correctAnswers;
+          this.saveStats();
+      }
+      
+      alert(`Скоростной режим завершен!\n\nОтвечено: ${answeredCount} из ${this.questions.length}\nПравильных ответов: ${correctAnswers}\n\nЛучший результат: ${this.stats.bestSpeedScore}`);
+      
+      this.userAnswers = {};
+      this.currentQuestionIndex = 0;
+      this.currentMode = null;
+      this.randomQuestionOrder = [];
+      this.saveProgress();
+      this.showStartScreen();
   }
 }
 

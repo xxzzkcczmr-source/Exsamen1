@@ -25,6 +25,32 @@
             </div>
         </div>
 
+        <!-- Экран выбора режима -->
+        <div class="mode-screen" id="modeScreen">
+            <h1>🌱 Выберите режим</h1>
+            <div class="mode-buttons">
+                <button id="normalModeBtn" class="mode-btn">
+                    <span class="mode-icon">📚</span>
+                    <span class="mode-title">Обычный режим</span>
+                    <span class="mode-desc">Вопросы по порядку</span>
+                </button>
+                <button id="randomModeBtn" class="mode-btn">
+                    <span class="mode-icon">🎲</span>
+                    <span class="mode-title">Случайный режим</span>
+                    <span class="mode-desc">Вопросы в случайном порядке</span>
+                </button>
+                <button id="speedModeBtn" class="mode-btn">
+                    <span class="mode-icon">⚡</span>
+                    <span class="mode-title">Скоростной режим</span>
+                    <span class="mode-desc">10 секунд на вопрос</span>
+                </button>
+            </div>
+            <div class="speed-best-score">
+                <p>Лучший результат скоростного режима: <span id="bestScore">0</span> / 105</p>
+            </div>
+            <button id="backToStartBtn" class="back-btn">← Назад</button>
+        </div>
+
         <!-- Экран вопроса -->
         <div class="question-screen" id="questionScreen">
             <header>
@@ -38,6 +64,9 @@
 
                 <div class="progress-info">
                     <span id="questionCounter">Вопрос 1 из 105</span>
+                    <div class="speed-timer" id="speedTimer" style="display: none;">
+                        ⏱️ Время: <span id="timerSeconds">10</span>с
+                    </div>
                     <div class="progress-bar">
                         <div class="progress-fill" id="progressFill"></div>
                     </div>
