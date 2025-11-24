@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Агроэкология Тест</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Начальный экран -->
+        <div class="start-screen active" id="startScreen">
+            <h1>🌱 Агроэкология Тест</h1>
+            <p>105 вопросов для подготовки к экзамену</p>
+            <button id="startBtn" class="start-btn">Начать тест</button>
+            <div class="stats-preview">
+                <div class="stat-preview">
+                    <span>Прогресс:</span>
+                    <span id="progressPreview">0%</span>
+                </div>
+                <div class="stat-preview">
+                    <span>Правильно:</span>
+                    <span id="correctPreview">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран вопроса -->
+        <div class="question-screen" id="questionScreen">
+            <header>
+                <div class="header-top">
+                    <button id="menuBtn">☰ Меню</button>
+                    <select id="languageSelect">
+                        <option value="ru">Русский</option>
+                        <option value="es">Español</option>
+                    </select>
+                </div>
+
+                <div class="progress-info">
+                    <span id="questionCounter">Вопрос 1 из 105</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="question-content">
+                <div class="question-section" id="questionSection">Раздел</div>
+                <div class="question-text" id="questionText">Текст вопроса</div>
+
+                <div class="answers" id="answersContainer">
+                    <!-- Варианты ответов -->
+                </div>
+
+                <div class="feedback" id="feedback">
+                    <!-- Сообщение о правильности -->
+                </div>
+            </div>
+
+            <div class="navigation">
+                <button id="prevBtn" class="nav-btn">← Назад</button>
+                <button id="nextBtn" class="nav-btn">Следующий →</button>
+                <button id="finishBtn" class="finish-btn">Завершить</button>
+            </div>
+        </div>
+
+        <!-- Меню настроек -->
+        <div class="menu-screen" id="menuScreen">
+            <div class="menu-content">
+                <h2>Настройки и статистика</h2>
+
+                <div class="menu-stats">
+                    <h3>Ваш прогресс</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-value" id="menuTotalAnswered">0</span>
+                            <span class="stat-label">Отвечено</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="menuCorrectAnswers">0</span>
+                            <span class="stat-label">Правильно</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="menuSuccessRate">0%</span>
+                            <span class="stat-label">Успех</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="menu-actions">
+                    <button id="continueBtn" class="menu-action-btn">Продолжить тест</button>
+                    <button id="restartMenuBtn" class="menu-action-btn">Начать заново</button>
+                    <button id="closeMenuBtn" class="menu-action-btn">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="questions.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
